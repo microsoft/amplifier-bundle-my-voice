@@ -1,8 +1,12 @@
 """Voice profile management tool module."""
 
+from typing import Any
 
-def mount(coordinator, config: dict):
+
+async def mount(coordinator: Any, config: dict[str, Any] | None = None):
     """Mount function called by amplifier-core module loader."""
     from .tool import MyVoiceProfilesTool
 
-    return MyVoiceProfilesTool(config)
+    tool = MyVoiceProfilesTool(config or {})
+    await coordinator.mount("tools", tool, name=tool.name)
+    return tool

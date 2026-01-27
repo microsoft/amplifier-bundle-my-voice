@@ -1,17 +1,29 @@
 """Voice profile management tool."""
 
-from typing import Any, ClassVar
+from typing import Any
 
-from amplifier_core.tools import Tool, ToolResult
+from amplifier_core import ToolResult
 
 from .store import ProfileStore
 
 
-class MyVoiceProfilesTool(Tool):
-    """Tool for managing voice profiles with git sync."""
+class MyVoiceProfilesTool:
+    """Tool for managing voice profiles with git sync.
 
-    name: ClassVar[str] = "my-voice-profiles"
-    description: ClassVar[str] = """Manage voice profiles for the my-voice bundle.
+    Implements the Tool protocol (structural typing, no inheritance needed).
+    """
+
+    def __init__(self, config: dict[str, Any] | None = None):
+        my_voice_config = (config or {}).get("my-voice", {})
+        self._store = ProfileStore(my_voice_config)
+
+    @property
+    def name(self) -> str:
+        return "my_voice_profiles"
+
+    @property
+    def description(self) -> str:
+        return """Manage voice profiles for the my-voice bundle.
 
 Operations:
 - sync: Pull latest profiles from remote (if git source)
@@ -28,85 +40,75 @@ Examples:
 - Save changes: {"operation": "save", "message": "Added new learnings"}
 """
 
-    parameters: ClassVar[dict[str, Any]] = {
-        "type": "object",
-        "properties": {
-            "operation": {
-                "type": "string",
-                "enum": ["sync", "status", "read", "write", "save"],
-                "description": "Operation to perform",
+    def get_schema(self) -> dict[str, Any]:
+        """Return JSON schema for tool input."""
+        return {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "enum": ["sync", "status", "read", "write", "save"],
+                    "description": "Operation to perform",
+                },
+                "profile": {
+                    "type": "string",
+                    "description": "Profile name (default: 'default')",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Profile content (for write operation)",
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Commit message (for save operation)",
+                },
+                "force": {
+                    "type": "boolean",
+                    "description": "Force sync even if not stale",
+                },
             },
-            "profile": {
-                "type": "string",
-                "description": "Profile name (default: 'default')",
-                "default": "default",
-            },
-            "content": {
-                "type": "string",
-                "description": "Profile content (for write operation)",
-            },
-            "message": {
-                "type": "string",
-                "description": "Commit message (for save operation)",
-            },
-            "force": {
-                "type": "boolean",
-                "description": "Force sync even if not stale",
-                "default": False,
-            },
-            "auto_save": {
-                "type": "boolean",
-                "description": "Auto-commit and push after write",
-                "default": True,
-            },
-        },
-        "required": ["operation"],
-    }
+            "required": ["operation"],
+        }
 
-    def __init__(self, config: dict | None = None):
-        super().__init__(config)
-        my_voice_config = (config or {}).get("my-voice", {})
-        self._store = ProfileStore(my_voice_config)
+    async def execute(self, input: dict[str, Any]) -> ToolResult:
+        """Execute tool with given input."""
+        operation = input.get("operation")
+        profile = input.get("profile", "default")
+        content = input.get("content")
+        message = input.get("message")
+        force = input.get("force", False)
 
-    async def run(
-        self,
-        operation: str,
-        profile: str = "default",
-        content: str | None = None,
-        message: str | None = None,
-        force: bool = False,
-        auto_save: bool = True,
-    ) -> ToolResult:
-        """Execute a profile operation."""
-        if operation == "sync":
-            result = await self._store.sync(force=force)
-        elif operation == "status":
-            result = await self._store.status()
-            result["success"] = True
-        elif operation == "read":
-            result = await self._store.read_profile(profile)
-        elif operation == "write":
-            if content is None:
+        try:
+            if operation == "sync":
+                result = await self._store.sync(force=force)
+            elif operation == "status":
+                result = await self._store.status()
+            elif operation == "read":
+                result = await self._store.read_profile(profile)
+            elif operation == "write":
+                if content is None:
+                    return ToolResult(
+                        success=False,
+                        error={"message": "content is required for write operation"},
+                    )
+                result = await self._store.write_profile(
+                    content=content,
+                    profile_name=profile,
+                )
+            elif operation == "save":
+                result = await self._store.save(
+                    message=message or "Update voice profile"
+                )
+            else:
                 return ToolResult(
                     success=False,
-                    output=None,
-                    error="content is required for write operation",
+                    error={"message": f"Unknown operation: {operation}"},
                 )
-            result = await self._store.write_profile(
-                content=content,
-                profile_name=profile,
-                auto_save=auto_save,
-            )
-        elif operation == "save":
-            result = await self._store.save(message=message or "Update voice profile")
-        else:
+
+            return ToolResult(success=True, output=result)
+
+        except Exception as e:
             return ToolResult(
                 success=False,
-                output=None,
-                error=f"Unknown operation: {operation}",
+                error={"message": str(e), "type": type(e).__name__},
             )
-
-        if result.get("success"):
-            return ToolResult(success=True, output=result)
-        else:
-            return ToolResult(success=False, output=None, error=result.get("error"))
