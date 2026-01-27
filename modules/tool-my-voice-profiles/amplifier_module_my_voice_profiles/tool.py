@@ -4,7 +4,7 @@ from typing import Any, ClassVar
 
 from amplifier_core.tools import Tool, ToolResult
 
-from amplifier_my_voice.store import ProfileStore
+from .store import ProfileStore
 
 
 class MyVoiceProfilesTool(Tool):

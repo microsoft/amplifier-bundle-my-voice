@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 
 from amplifier_core.hooks import Hook, HookResult
 
-from amplifier_my_voice.store import ProfileStore, STALENESS_THRESHOLD
+from .store import ProfileStore, STALENESS_THRESHOLD
 
 
 class MyVoiceSyncHook(Hook):

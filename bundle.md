@@ -14,7 +14,7 @@ agents:
 
 tools:
   - module: my-voice-profiles
-    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main
+    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main#subdirectory=modules/tool-my-voice-profiles
     config:
       my-voice:
         profile_source: unconfigured
@@ -22,7 +22,7 @@ tools:
 
 hooks:
   - module: my-voice-sync
-    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main
+    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main#subdirectory=modules/hook-my-voice-sync
     config:
       my-voice:
         profile_source: unconfigured
