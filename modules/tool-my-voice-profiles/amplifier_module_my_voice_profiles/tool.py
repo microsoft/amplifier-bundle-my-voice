@@ -40,7 +40,8 @@ Examples:
 - Save changes: {"operation": "save", "message": "Added new learnings"}
 """
 
-    def get_schema(self) -> dict[str, Any]:
+    @property
+    def input_schema(self) -> dict[str, Any]:
         """Return JSON schema for tool input."""
         return {
             "type": "object",
