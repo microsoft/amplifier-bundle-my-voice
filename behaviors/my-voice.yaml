@@ -1,0 +1,16 @@
+bundle:
+  name: my-voice-behavior
+  version: 0.1.0
+  description: Voice preservation - adds voice-analyst and message-tuner agents
+
+agents:
+  voice-analyst:
+    source: my-voice:agents/voice-analyst.md
+    description: Analyzes sessions and writing samples to build voice profiles
+  message-tuner:
+    source: my-voice:agents/message-tuner.md
+    description: Cleans up messages using voice profiles while preserving authentic voice
+
+context:
+  include:
+    - my-voice:context/instructions.md
