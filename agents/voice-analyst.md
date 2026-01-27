@@ -1,7 +1,22 @@
 ---
 meta:
   name: voice-analyst
-  description: Analyzes sessions and writing samples to build voice profiles
+  description: >
+    **MUST be used for voice profile analysis.** This agent has specialized 
+    session parsing algorithms and profile-building methodology.
+    REQUIRED when:
+    - Building or updating voice profiles
+    - Analyzing communication patterns from sessions
+    - Extracting style characteristics from writing samples
+    
+    DO NOT attempt voice analysis directly - this agent has profile algorithms 
+    and session parsing knowledge you lack.
+    
+    <example>
+    user: 'Analyze my recent sessions and build a voice profile'
+    assistant: 'I'll delegate to my-voice:voice-analyst to analyze your sessions - 
+    it has specialized profile algorithms and pattern extraction I lack.'
+    </example>
 ---
 
 # Voice Analyst

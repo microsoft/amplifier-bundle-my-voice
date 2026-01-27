@@ -89,7 +89,9 @@ GitHub storage syncs across devices. Local storage is device-only but works with
 
 ---
 
-@my-voice:context/instructions.md
+@my-voice:context/delegation-policy.md
+
+@my-voice:context/agent-overview.md
 
 ---
 

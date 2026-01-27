@@ -1,7 +1,22 @@
 ---
 meta:
   name: message-tuner
-  description: Cleans up messages using voice profiles while preserving authentic voice
+  description: >
+    **MUST be used for message cleanup and tuning.** This agent has the user's 
+    voice profile and style matching algorithms to preserve authentic voice.
+    REQUIRED when:
+    - Cleaning up or condensing messages
+    - Adapting messages for different audiences
+    - Transforming verbose content while preserving voice
+    
+    DO NOT attempt message cleanup directly - this agent has the voice profile 
+    and style matching capabilities you lack.
+    
+    <example>
+    user: 'Help me clean up this message for my team'
+    assistant: 'I'll delegate to my-voice:message-tuner - it has your voice 
+    profile and style matching algorithms to preserve your authentic voice.'
+    </example>
 ---
 
 # Message Tuner

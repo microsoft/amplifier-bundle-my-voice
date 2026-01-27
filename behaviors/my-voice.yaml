@@ -29,4 +29,5 @@ hooks:
 
 context:
   include:
-    - my-voice:context/instructions.md
+    - my-voice:context/delegation-policy.md
+    - my-voice:context/agent-overview.md
