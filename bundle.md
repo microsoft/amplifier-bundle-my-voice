@@ -8,12 +8,9 @@ includes:
   - bundle: git+https://github.com/microsoft/amplifier-foundation@main
 
 agents:
-  voice-analyst:
-    source: my-voice:agents/voice-analyst.md
-    description: Analyzes sessions and writing samples to build voice profiles
-  message-tuner:
-    source: my-voice:agents/message-tuner.md
-    description: Cleans up messages using voice profiles while preserving authentic voice
+  include:
+    - my-voice:voice-analyst
+    - my-voice:message-tuner
 
 tools:
   - module: my-voice-profiles
