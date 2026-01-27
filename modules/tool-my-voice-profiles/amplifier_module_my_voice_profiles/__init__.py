@@ -1,7 +1,7 @@
 """Voice profile management tool module."""
 
 
-def mount(config: dict):
+def mount(coordinator, config: dict):
     """Mount function called by amplifier-core module loader."""
     from .tool import MyVoiceProfilesTool
 
