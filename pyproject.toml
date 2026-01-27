@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "amplifier-my-voice"
+version = "0.1.0"
+description = "Voice profile sync tool and hook for amplifier-bundle-my-voice"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "amplifier-core>=0.1.0",
+]
+
+[project.entry-points."amplifier.tools"]
+my-voice-profiles = "amplifier_my_voice.tool:MyVoiceProfilesTool"
+
+[project.entry-points."amplifier.hooks"]
+my-voice-sync = "amplifier_my_voice.hook:MyVoiceSyncHook"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/amplifier_my_voice"]

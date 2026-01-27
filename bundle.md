@@ -14,6 +14,22 @@ agents:
   message-tuner:
     source: my-voice:agents/message-tuner.md
     description: Cleans up messages using voice profiles while preserving authentic voice
+
+tools:
+  - module: my-voice-profiles
+    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main
+    config:
+      my-voice:
+        profile_source: unconfigured
+        local_path: ~/.amplifier/my-voice/profiles
+
+hooks:
+  - module: my-voice-sync
+    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main
+    config:
+      my-voice:
+        profile_source: unconfigured
+        local_path: ~/.amplifier/my-voice/profiles
 ---
 
 # My Voice
