@@ -12,13 +12,9 @@ agents:
     - my-voice:voice-analyst
     - my-voice:message-tuner
 
-tools:
-  - module: my-voice-profiles
-    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main#subdirectory=modules/tool-my-voice-profiles
-    config:
-      my-voice:
-        profile_source: unconfigured
-        local_path: ~/.amplifier/my-voice/profiles
+# NOTE: my-voice-profiles tool is scoped to AGENTS ONLY (not root session)
+# This structurally enforces delegation - root can't pre-check state
+# Tool is declared in each agent's frontmatter
 
 hooks:
   - module: my-voice-sync

@@ -17,6 +17,14 @@ meta:
     assistant: 'I'll delegate to my-voice:message-tuner - it has your voice 
     profile and style matching algorithms to preserve your authentic voice.'
     </example>
+
+tools:
+  - module: my-voice-profiles
+    source: git+https://github.com/microsoft/amplifier-bundle-my-voice@main#subdirectory=modules/tool-my-voice-profiles
+    config:
+      my-voice:
+        profile_source: unconfigured
+        local_path: ~/.amplifier/my-voice/profiles
 ---
 
 # Message Tuner
