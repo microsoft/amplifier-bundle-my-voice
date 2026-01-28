@@ -1,6 +1,47 @@
 # Voice System Delegation Policy
 
-**CRITICAL**: The voice profile system uses specialized agents with session analysis algorithms and style matching capabilities you do not have. You MUST delegate to the appropriate agent.
+## MANDATORY: Question Surfacing Protocol
+
+**When ANY spawned voice agent returns a response containing options or a question for the user:**
+
+### STOP. Do not continue.
+
+1. **Display the question/options VERBATIM** to the user
+2. **WAIT** for user's explicit answer
+3. **Only THEN** resume with the user's actual response
+
+### Detection Patterns
+
+Look for these in agent responses:
+- "Which applies?" / "Which option?" / "Which works for you?"
+- "A) ... B) ... C) ..."
+- Any response ending in "?"
+- "[USER INPUT REQUIRED]" markers
+
+### This is NOT Optional
+
+Auto-answering on behalf of the user **violates user agency**. The user may have important context (like an existing profile stored elsewhere) that you don't know about.
+
+<example type="violation">
+Agent returns: "A/B/C - which applies?"
+You respond: *resume session with "C - Skip"*
+**VIOLATION** - You answered FOR the user without asking them
+</example>
+
+<example type="correct">
+Agent returns: "A/B/C - which applies?"
+You respond: "Before I continue, I need your input:
+
+**A) I have one stored already** (GitHub repo or another device)
+**B) I'm new to this** - let me try it first
+**C) Skip setup for now** - just help with this message
+
+Which applies to you?"
+User answers: "A - I have mine in GitHub"
+You: *resume session with user's actual answer*
+</example>
+
+---
 
 ## Domain Honoring
 
@@ -29,32 +70,8 @@ When these agents are available, you MUST delegate rather than attempting the ta
 
 1. The agent checks `configuration_state` via the `my_voice_profiles` tool
 2. If unconfigured, the agent asks the user clarifying questions
-3. The agent handles setup if needed, then proceeds with the work
-4. You don't need to check state before delegating - just delegate
-
-**This means:** You can confidently delegate on trigger phrases. The specialized agent knows how to handle all states including first-run.
-
-## CRITICAL: Surface Child Agent Questions
-
-**When a voice agent returns a question for the user, SHOW IT TO THE USER.**
-
-Do NOT answer on behalf of the user. Do NOT assume what they want.
-
-Example - WRONG:
-```
-Agent returns: "A) I have one stored B) I'm new C) Skip - which applies?"
-You resume session with: "C - Skip setup"  ← DON'T DO THIS
-```
-
-Example - CORRECT:
-```
-Agent returns: "A) I have one stored B) I'm new C) Skip - which applies?"
-You show the user: "Before we proceed, quick question: [show the options]"
-User answers: "A - I have one in GitHub"
-You resume session with their answer
-```
-
-**Why this matters:** Users may have existing profiles stored elsewhere. Auto-answering "skip" loses their data and forces them to rebuild from scratch.
+3. **YOU surface those questions to the user** (see protocol above)
+4. The agent handles setup based on user's answer, then proceeds
 
 ## Anti-Patterns (DO NOT)
 
@@ -64,11 +81,8 @@ You resume session with their answer
 ❌ "Let me clean up this message for you" (DIY)
 ✅ "I'll use message-tuner which has your voice profile and style matching"
 
-❌ "Based on what I can see in your writing..." (DIY analysis)
-✅ "I'll have voice-analyst analyze your patterns - it has algorithms I lack"
-
-❌ "Let me check if you have a profile first..." (unnecessary pre-check)
-✅ Just delegate - the agent handles state checking internally
+❌ Agent asks "A/B/C?" → You answer "C" for them (AUTO-ANSWERING)
+✅ Agent asks "A/B/C?" → You show options to user → User answers → You relay answer
 
 ## Why This Matters
 

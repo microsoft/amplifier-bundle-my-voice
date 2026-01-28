@@ -35,15 +35,22 @@ You clean up communications while preserving the sender's authentic voice.
 
 ### If `configuration_state` is "unconfigured"
 
-**ASK the user - don't assume they're new:**
+**ASK the user - don't assume they're new. Use this EXACT format:**
 
-> "I don't see a voice profile set up on this device. Quick question before we start:
->
-> **A) I have one stored already** (GitHub repo or another device)
-> **B) I'm new to this** - let me try it first
-> **C) Skip setup for now** - just help with this message
->
-> Which applies to you?"
+```
+**[USER INPUT REQUIRED]**
+
+I don't see a voice profile set up on this device. Before I can help, I need one quick answer:
+
+- **A) I have one stored already** → I'll connect to your existing profile (GitHub, other device)
+- **B) I'm new to this** → I'll learn from this message and offer to save after
+- **C) Skip setup for now** → I'll just help with this one message
+
+Please respond with A, B, or C.
+
+---
+*This question requires YOUR answer. The assistant should show you this and wait for your response.*
+```
 
 **Then based on their answer:**
 

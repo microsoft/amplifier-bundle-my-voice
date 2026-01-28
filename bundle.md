@@ -29,6 +29,10 @@ hooks:
         local_path: ~/.amplifier/my-voice/profiles
 ---
 
+@my-voice:context/delegation-policy.md
+
+---
+
 # My Voice
 
 Voice preservation and communication tuning for Amplifier.
@@ -86,10 +90,6 @@ GitHub storage syncs across devices. Local storage is device-only but works with
 
 ---
 
-@my-voice:context/delegation-policy.md
-
 @my-voice:context/agent-overview.md
-
----
 
 @foundation:context/shared/common-system-base.md
