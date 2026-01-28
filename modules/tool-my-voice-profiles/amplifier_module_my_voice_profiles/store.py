@@ -48,6 +48,37 @@ class ProfileStore:
             return False
         return (time.time() - self._last_sync) > STALENESS_THRESHOLD
 
+    @property
+    def configuration_state(self) -> str:
+        """Determine user's setup state for appropriate UX flow.
+
+        Returns one of:
+        - "unconfigured": No config in settings.yaml (new user OR returning user on new device)
+        - "configured_needs_clone": Git config exists but repo not cloned yet
+        - "configured_no_profile": Storage ready but no profile built yet
+        - "ready": Profile exists and ready to use
+        """
+        if not self.is_configured:
+            return "unconfigured"
+
+        if self.is_git_source:
+            git_dir = self.local_path / ".git"
+            if not git_dir.exists():
+                return "configured_needs_clone"
+
+        # Check if any profiles exist
+        profiles_dir = self.local_path / "profiles"
+        if profiles_dir.exists():
+            profiles = [
+                p
+                for p in profiles_dir.iterdir()
+                if p.is_dir() and (p / "VOICE_PROFILE.md").exists()
+            ]
+            if profiles:
+                return "ready"
+
+        return "configured_no_profile"
+
     async def _run_git(
         self, *args: str, cwd: Optional[Path] = None
     ) -> tuple[int, str, str]:

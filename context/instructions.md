@@ -2,28 +2,78 @@
 
 You have access to the **my-voice** capability for personalizing AI interactions.
 
-## Configuration Check
+## First-Run Experience: ASK FIRST
 
-**Before using voice features, verify configuration exists:**
+**CRITICAL:** When a user asks for voice-related help and no profile is configured, **ASK before assuming** their situation. They may be:
 
-Check for `config.my-voice.profile_source` in the user's settings. If not configured, guide them:
+1. **Returning user on a new device** - Has a profile stored in GitHub
+2. **New user** - Wants to try it out first
+3. **Just wants help now** - Skip setup for this session
 
-```yaml
-# Add to ~/.amplifier/settings.yaml
-config:
-  my-voice:
-    profile_source: git+https://github.com/USER/my-voice-profiles
-    # OR
-    profile_source: local
+### The Question to Ask
+
+When `configuration_state` is "unconfigured", ask:
+
+> "I don't see a voice profile set up on this device. Quick question:
+>
+> **A) I have one stored already** (GitHub repo or another device)  
+> **B) I'm new to this** - let me try it first  
+> **C) Skip setup for now** - just help with this message
+>
+> Which applies to you?"
+
+### Handling Each Response
+
+| Response | Action |
+|----------|--------|
+| **A) Has existing** | Ask for repo URL, use `my_voice_profiles` tool with `operation="configure"` to connect, then sync |
+| **B) New user** | Work in "ephemeral mode" - infer style from their message. After success, offer to save learnings. |
+| **C) Skip** | Work from context only. Don't mention setup again this session. |
+
+## Configuration States
+
+The hook will inject guidance based on state:
+
+| State | Meaning | What to Do |
+|-------|---------|------------|
+| `unconfigured` | No settings configured | ASK the clarifying question above |
+| `configured_needs_clone` | Git URL set, needs sync | Auto-handled by hook - just proceed |
+| `configured_no_profile` | Storage ready, no profile | Offer to build profile or work from message |
+| `ready` | Profile exists | Normal operation |
+
+## Ephemeral Mode (Unconfigured Users)
+
+When working without a persistent profile:
+
+1. **Infer style** from the user's message itself
+2. **Deliver value** - clean up their message
+3. **Note patterns** you observed
+4. **Offer to save**: "I noticed some patterns in your writing. Want me to save these for next time?"
+5. **If yes**: Guide through configure operation
+
+## Profile Storage Options
+
+| Option | Config Value | Best For |
+|--------|--------------|----------|
+| **GitHub** | `git+https://github.com/user/repo` | Syncs across devices |
+| **Local** | `local` | Single device, no sync needed |
+
+## Configuring Storage (Agent-Assisted)
+
+Use the `my_voice_profiles` tool with `operation="configure"`:
+
+```json
+// For GitHub storage
+{"operation": "configure", "storage_type": "github", "git_url": "https://github.com/user/my-voice-profiles"}
+
+// For local storage  
+{"operation": "configure", "storage_type": "local"}
 ```
 
-## Profile Storage Locations
-
-| Config Value | Profile Location |
-|--------------|------------------|
-| `git+https://github.com/user/repo` | Cloned to `~/.amplifier/my-voice/profiles/` from that repo |
-| `local` | `~/.amplifier/my-voice/profiles/` (local only, not synced) |
-| Not set | Features unavailable - prompt user to configure |
+The tool will:
+1. Update `~/.amplifier/settings.yaml`
+2. For GitHub: Attempt to sync immediately
+3. Report if existing profiles were found
 
 ## Profile Structure
 
@@ -37,21 +87,23 @@ config:
 
 ## Workflow: Building a Profile
 
-1. **Check config** - Is `profile_source` set? If not, guide setup first.
-2. **Gather samples** - Sessions, messages, writing samples
-3. **Analyze** - Use `my-voice:voice-analyst` agent
-4. **Create profile** - Start from template, customize
-5. **Test** - Clean up a real message, get feedback
-6. **Iterate** - Update profile based on what worked/didn't
+1. **Check state** - Use `my_voice_profiles` with `operation="status"` to see `configuration_state`
+2. **If unconfigured** - ASK the clarifying question, don't assume
+3. **Gather samples** - Sessions, messages, writing samples
+4. **Analyze** - Use `my-voice:voice-analyst` agent
+5. **Create profile** - Start from template, customize
+6. **Test** - Clean up a real message, get feedback
+7. **Iterate** - Update profile based on what worked/didn't
 
 ## Workflow: Cleaning Up Messages
 
-1. **Load profile** - Read from configured location
-2. **Understand context** - Who's the audience? What medium?
-3. **Apply guidelines** - Follow the profile's preserve/condense/never-do
-4. **Present draft** - Show what changed and why
-5. **Incorporate feedback** - Iterate until right
-6. **Capture learnings** - Update profile if something new was learned
+1. **Check state** - Is profile ready? If not, handle appropriately
+2. **Load profile** - Read from configured location (or infer from message if ephemeral)
+3. **Understand context** - Who's the audience? What medium?
+4. **Apply guidelines** - Follow the profile's preserve/condense/never-do
+5. **Present draft** - Show what changed and why
+6. **Incorporate feedback** - Iterate until right
+7. **Capture learnings** - Update profile if something new was learned
 
 ## Agents
 
