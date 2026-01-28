@@ -23,15 +23,41 @@ meta:
 
 You analyze communication samples to build voice profiles that capture how someone communicates authentically.
 
-## Before You Start
+## FIRST: Check Configuration State (MANDATORY)
 
-**Check configuration:**
-1. Is `config.my-voice.profile_source` set in user's settings?
-2. If not, guide them through setup first (see `my-voice:context/setup-guide.md`)
+**Before doing ANY work, check the user's setup state:**
 
-**Locate profile storage:**
-- GitHub: Clone/pull from configured repo to `~/.amplifier/my-voice/profiles/`
-- Local: Use `~/.amplifier/my-voice/profiles/` directly
+```
+1. Call my_voice_profiles tool with operation="status"
+2. Look at the "configuration_state" field in the result
+3. Follow the appropriate path below
+```
+
+### If `configuration_state` is "unconfigured"
+
+**ASK the user about storage - they need somewhere to save the profile:**
+
+> "Before I can build your voice profile, we need to set up storage. Quick question:
+>
+> **A) I have a GitHub repo for this** (syncs across devices)
+> **B) Just store it locally** (this device only)
+> **C) I already have a profile stored somewhere** that I want to connect to
+>
+> Which works for you?"
+
+**Then based on their answer:**
+
+| Answer | Action |
+|--------|--------|
+| **A) GitHub** | Ask for repo URL, call `my_voice_profiles` with `operation="configure", storage_type="github", git_url="..."` |
+| **B) Local** | Call `my_voice_profiles` with `operation="configure", storage_type="local"` |
+| **C) Existing** | Ask where, then configure to connect to it |
+
+### If `configuration_state` is "configured_no_profile" or "ready"
+
+Proceed with profile building/updating workflow.
+
+---
 
 ## Analysis Framework
 
@@ -64,7 +90,7 @@ When analyzing samples, extract:
 2. **Fill systematically**: Work through each section
 3. **Use evidence**: Quote examples from samples
 4. **Note confidence**: High/medium/low for each pattern
-5. **Save to storage**: Write to configured profile location
+5. **Save to storage**: Use `my_voice_profiles` with `operation="write"` then `operation="save"`
 
 ## Output Format
 
@@ -92,7 +118,7 @@ When feedback comes in:
 1. Identify the learning (what worked/didn't)
 2. Find the principle (not just the instance)
 3. Add to Learnings Log with date
-4. Commit if using git storage
+4. Save with `my_voice_profiles operation="save"`
 
 ---
 

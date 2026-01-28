@@ -21,6 +21,18 @@ When these agents are available, you MUST delegate rather than attempting the ta
 | "Clean up this message" | `my-voice:message-tuner` |
 | "Help me with this [message/email/text]" | `my-voice:message-tuner` |
 | "Make this clearer" | `my-voice:message-tuner` |
+| "Write this in my voice" | `my-voice:message-tuner` |
+
+## How It Works
+
+**The agents handle first-run onboarding themselves.** When you delegate:
+
+1. The agent checks `configuration_state` via the `my_voice_profiles` tool
+2. If unconfigured, the agent asks the user clarifying questions
+3. The agent handles setup if needed, then proceeds with the work
+4. You don't need to check state before delegating - just delegate
+
+**This means:** You can confidently delegate on trigger phrases. The specialized agent knows how to handle all states including first-run.
 
 ## Anti-Patterns (DO NOT)
 
@@ -33,6 +45,9 @@ When these agents are available, you MUST delegate rather than attempting the ta
 ❌ "Based on what I can see in your writing..." (DIY analysis)
 ✅ "I'll have voice-analyst analyze your patterns - it has algorithms I lack"
 
+❌ "Let me check if you have a profile first..." (unnecessary pre-check)
+✅ Just delegate - the agent handles state checking internally
+
 ## Why This Matters
 
 These agents have:
@@ -40,5 +55,6 @@ These agents have:
 - **Access to your voice profile** with learned preferences
 - **Methodology** for preserving voice while improving clarity
 - **Learning capture** to improve over time
+- **First-run handling** built into their workflow
 
 You lack these. Attempting DIY will produce generic results that don't preserve the user's authentic voice.
