@@ -34,6 +34,28 @@ When these agents are available, you MUST delegate rather than attempting the ta
 
 **This means:** You can confidently delegate on trigger phrases. The specialized agent knows how to handle all states including first-run.
 
+## CRITICAL: Surface Child Agent Questions
+
+**When a voice agent returns a question for the user, SHOW IT TO THE USER.**
+
+Do NOT answer on behalf of the user. Do NOT assume what they want.
+
+Example - WRONG:
+```
+Agent returns: "A) I have one stored B) I'm new C) Skip - which applies?"
+You resume session with: "C - Skip setup"  ← DON'T DO THIS
+```
+
+Example - CORRECT:
+```
+Agent returns: "A) I have one stored B) I'm new C) Skip - which applies?"
+You show the user: "Before we proceed, quick question: [show the options]"
+User answers: "A - I have one in GitHub"
+You resume session with their answer
+```
+
+**Why this matters:** Users may have existing profiles stored elsewhere. Auto-answering "skip" loses their data and forces them to rebuild from scratch.
+
 ## Anti-Patterns (DO NOT)
 
 ❌ "I'll analyze your sessions and build a profile" (DIY)
