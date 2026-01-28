@@ -1,5 +1,50 @@
 # Voice System Delegation Policy
 
+## MANDATORY: Passthrough Delegation (NO Pre-Processing)
+
+**When a user triggers voice-related work, delegate IMMEDIATELY without pre-processing.**
+
+### DO NOT Before Delegating:
+
+❌ Call `my_voice_profiles` to check state first
+❌ Analyze the user's writing style
+❌ Summarize or interpret their message
+❌ Add "helpful" context about what you observed
+❌ Make any tool calls related to the voice domain
+
+### DO When Delegating:
+
+✅ Pass the user's request **verbatim**
+✅ Include any content they provided (messages, samples)
+✅ Delegate **immediately** upon trigger phrase match
+✅ Let the agent run its own state-checking and onboarding
+
+### Why This Matters
+
+> **Think of yourself as a mail carrier, not an editor.** Deliver the message as-is.
+
+If you pre-check state or pre-analyze writing:
+- The agent thinks state is already known → skips its onboarding
+- The agent thinks analysis is done → skips discovery phase
+- Your "helpful" context contaminates the agent's flow
+
+**The agent owns its domain.** Let it run its own logic.
+
+<example type="violation">
+User: "Write this in my voice: [message]"
+You: *calls my_voice_profiles to check* → *analyzes their writing* → *delegates with "I noticed their patterns are..."*
+**VIOLATION** - You pre-processed. Agent will skip onboarding.
+</example>
+
+<example type="correct">
+User: "Write this in my voice: [message]"
+You: "I'll delegate to message-tuner which has your voice profile and style matching."
+You: *immediately delegates with*: "The user wants to write this in their voice: [message]"
+**CORRECT** - Agent runs its own flow, asks user A/B/C if needed.
+</example>
+
+---
+
 ## MANDATORY: Question Surfacing Protocol
 
 **When ANY spawned voice agent returns a response containing options or a question for the user:**
@@ -52,26 +97,15 @@ When these agents are available, you MUST delegate rather than attempting the ta
 | Profile building/analysis | `my-voice:voice-analyst` | Session parsing algorithms, pattern extraction |
 | Message cleanup/tuning | `my-voice:message-tuner` | Style matching, voice preservation algorithms |
 
-## Trigger Phrases → Delegation
+## Trigger Phrases → Immediate Delegation
 
-| User Says | Delegate To |
-|-----------|-------------|
-| "Build a voice profile" | `my-voice:voice-analyst` |
-| "Analyze my sessions/style" | `my-voice:voice-analyst` |
-| "Update my profile" | `my-voice:voice-analyst` |
-| "Clean up this message" | `my-voice:message-tuner` |
-| "Help me with this [message/email/text]" | `my-voice:message-tuner` |
-| "Make this clearer" | `my-voice:message-tuner` |
-| "Write this in my voice" | `my-voice:message-tuner` |
-
-## How It Works
-
-**The agents handle first-run onboarding themselves.** When you delegate:
-
-1. The agent checks `configuration_state` via the `my_voice_profiles` tool
-2. If unconfigured, the agent asks the user clarifying questions
-3. **YOU surface those questions to the user** (see protocol above)
-4. The agent handles setup based on user's answer, then proceeds
+| User Says | Delegate To | Instruction Format |
+|-----------|-------------|-------------------|
+| "Build a voice profile" | `my-voice:voice-analyst` | "The user wants to build a voice profile." |
+| "Analyze my sessions/style" | `my-voice:voice-analyst` | "The user wants their sessions/style analyzed." |
+| "Clean up this message" | `my-voice:message-tuner` | "The user wants to clean up this message: [verbatim]" |
+| "Write this in my voice" | `my-voice:message-tuner` | "The user wants to write this in their voice: [verbatim]" |
+| "Help me with this [message]" | `my-voice:message-tuner` | "The user wants help with this message: [verbatim]" |
 
 ## Anti-Patterns (DO NOT)
 
@@ -80,6 +114,9 @@ When these agents are available, you MUST delegate rather than attempting the ta
 
 ❌ "Let me clean up this message for you" (DIY)
 ✅ "I'll use message-tuner which has your voice profile and style matching"
+
+❌ *Calls my_voice_profiles first* → *then delegates with "I checked and..."* (PRE-PROCESSING)
+✅ *Immediately delegates* → Agent checks state itself → Agent runs its flow
 
 ❌ Agent asks "A/B/C?" → You answer "C" for them (AUTO-ANSWERING)
 ✅ Agent asks "A/B/C?" → You show options to user → User answers → You relay answer
@@ -93,4 +130,4 @@ These agents have:
 - **Learning capture** to improve over time
 - **First-run handling** built into their workflow
 
-You lack these. Attempting DIY will produce generic results that don't preserve the user's authentic voice.
+You lack these. Attempting DIY or pre-processing will produce generic results and break the agent's onboarding flow.
