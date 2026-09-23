@@ -2,12 +2,45 @@
 
 import asyncio
 import os
+import re
 import time
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlsplit
 
 # Staleness threshold - pull if last sync was more than this many seconds ago
 STALENESS_THRESHOLD = 300  # 5 minutes
+GITHUB_REPOSITORY_PATH = re.compile(
+    r"^/[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})/[A-Za-z0-9._-]+/?$"
+)
+
+
+def validate_git_url(url: str) -> str:
+    """Validate and return a supported GitHub repository URL."""
+    if not isinstance(url, str) or not url or url != url.strip():
+        raise ValueError("Git URL must be a non-empty HTTPS GitHub repository URL")
+
+    try:
+        parsed = urlsplit(url)
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError("Invalid GitHub repository URL") from exc
+
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname != "github.com"
+        or parsed.username is not None
+        or parsed.password is not None
+        or port is not None
+        or parsed.query
+        or parsed.fragment
+        or not GITHUB_REPOSITORY_PATH.fullmatch(parsed.path)
+    ):
+        raise ValueError(
+            "Git URL must use https://github.com/OWNER/REPOSITORY"
+        )
+
+    return url
 
 
 class ProfileStore:
@@ -119,6 +152,11 @@ class ProfileStore:
         if not url:
             return {"success": False, "error": "Invalid git URL"}
 
+        try:
+            url = validate_git_url(url)
+        except ValueError as exc:
+            return {"success": False, "error": str(exc)}
+
         # Clone to parent, then the repo becomes local_path
         parent = self.local_path.parent
         parent.mkdir(parents=True, exist_ok=True)
@@ -130,7 +168,7 @@ class ProfileStore:
             shutil.rmtree(self.local_path)
 
         code, stdout, stderr = await self._run_git(
-            "clone", url, str(self.local_path), cwd=parent
+            "clone", "--", url, str(self.local_path), cwd=parent
         )
 
         if code != 0:
