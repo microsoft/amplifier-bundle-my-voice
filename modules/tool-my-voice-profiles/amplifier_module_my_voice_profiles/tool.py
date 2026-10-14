@@ -6,7 +6,7 @@ from typing import Any
 
 from amplifier_core import ToolResult
 
-from .store import ProfileStore
+from .store import ProfileStore, validate_git_url
 
 
 class MyVoiceProfilesTool:
@@ -174,10 +174,21 @@ Examples:
                     "hint": "Provide the URL to your voice profiles repo, e.g., https://github.com/username/my-voice-profiles",
                 }
 
-            # Normalize URL - add git+ prefix if not present
-            if not git_url.startswith("git+"):
-                git_url = f"git+{git_url}"
+            raw_git_url = (
+                git_url.removeprefix("git+")
+                if isinstance(git_url, str)
+                else git_url
+            )
+            try:
+                raw_git_url = validate_git_url(raw_git_url)
+            except ValueError as exc:
+                return {
+                    "success": False,
+                    "error": str(exc),
+                    "hint": "Provide an HTTPS GitHub URL, e.g., https://github.com/username/my-voice-profiles",
+                }
 
+            git_url = f"git+{raw_git_url}"
             settings["config"]["my-voice"]["profile_source"] = git_url
             message = f"Configured GitHub storage: {git_url}"
             next_step = "Run sync to pull your existing profile, or build a new one"
